@@ -18,7 +18,7 @@ class ProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
-    // 2. Tambah Produk Baru
+    // Pada method store:
     public function store(Request $request)
     {
         $request->validate([
@@ -35,7 +35,7 @@ class ProductController extends Controller
             $imagePath = '/storage/' . $path;
         }
 
-        // Olah input options dari form admin (JSON)
+        // Olah input options dari form admin
         $additionalOptions = [];
         if ($request->has('options_json') && !empty($request->options_json)) {
             $additionalOptions = json_decode($request->options_json, true) ?? [];
@@ -54,7 +54,7 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan!');
     }
 
-    // 3. Update Produk
+    // Pada method update:
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -76,7 +76,6 @@ class ProductController extends Controller
             $product->image = '/storage/' . $path;
         }
 
-        // Olah input options dari form admin
         $additionalOptions = [];
         if ($request->has('options_json') && !empty($request->options_json)) {
             $additionalOptions = json_decode($request->options_json, true) ?? [];
@@ -87,7 +86,6 @@ class ProductController extends Controller
             'category_id'        => $request->category_id,
             'price'              => $request->price,
             'description'        => $request->description,
-            'image'              => $product->image,
             'is_available'       => $request->has('is_available'),
             'additional_options' => $additionalOptions,
         ]);

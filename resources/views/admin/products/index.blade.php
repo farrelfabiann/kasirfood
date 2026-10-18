@@ -265,16 +265,10 @@
 
             existingProductsData.forEach(product => {
                 const container = document.getElementById(`groups_container_edit_${product.id}`);
-                if (container && product.additional_options) {
-                    let optionsData = product.additional_options;
-                    if (typeof optionsData === 'string') {
-                        try { optionsData = JSON.parse(optionsData); } catch(e) {}
-                    }
-                    if (Array.isArray(optionsData)) {
-                        optionsData.forEach(group => {
-                            addGroup('edit', product.id, group);
-                        });
-                    }
+                if (container && product.additional_options && Array.isArray(product.additional_options)) {
+                    product.additional_options.forEach(group => {
+                        addGroup('edit', product.id, group);
+                    });
                 }
             });
         });
@@ -287,8 +281,8 @@
             const groupDiv = document.createElement('div');
             groupDiv.className = 'option-group-box group-item';
 
-            const gName = existingGroupData ? (existingGroupData.groupName || existingGroupData.name || '') : '';
-            const gType = existingGroupData ? (existingGroupData.type || 'checkbox') : 'checkbox';
+            const gName = existingGroupData ? existingGroupData.groupName : '';
+            const gType = existingGroupData ? existingGroupData.type : 'checkbox';
 
             groupDiv.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -319,11 +313,9 @@
 
             container.appendChild(groupDiv);
 
-            // Perbaikan utama: Cek array items/options dengan fleksibel
-            const itemsList = existingGroupData ? (existingGroupData.options || existingGroupData.items || []) : [];
-            if (Array.isArray(itemsList) && itemsList.length > 0) {
-                itemsList.forEach(opt => {
-                    addOptionItem(groupDiv.querySelector('button'), opt.name || opt.option_name || '', opt.price || 0);
+            if (existingGroupData && Array.isArray(existingGroupData.options)) {
+                existingGroupData.options.forEach(opt => {
+                    addOptionItem(groupDiv.querySelector('button'), opt.name, opt.price);
                 });
             } else {
                 addOptionItem(groupDiv.querySelector('button'));
