@@ -23,12 +23,12 @@
     </nav>
 
     <div class="container py-4">
-        @if (session('success'))
+        <?php if (session('success')): ?>
             <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                <i class="bi bi-check-circle-fill me-2"></i><?php echo session('success'); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-        @endif
+        <?php endif; ?>
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold m-0"><i class="bi bi-box-seam me-2 text-primary"></i>Kelola Menu Makanan & Minuman</h4>
@@ -53,117 +53,121 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($products as$product)
-                                <tr>
-                                    <td class="ps-3">
-                                        <img src="{{ $product->image }}" alt="{{ $product->name }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold text-dark">{{ $product->name }}</div>
-                                        <small class="text-muted">{{ $product->description }}</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                                    </td>
-                                    <td class="fw-bold text-primary">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                                    <td>
-                                        @if (!empty($product->additional_options) && is_array($product->additional_options) && count($product->additional_options) > 0)
-                                            <span class="badge bg-info text-dark"><i class="bi bi-check-circle me-1"></i>{{ count($product->additional_options) }} Grup Opsi</span>
-                                        @else
-                                            <span class="badge bg-light text-muted border">Tanpa Opsi</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($product->is_available)
-                                            <span class="badge bg-success">Tersedia</span>
-                                        @else
-                                            <span class="badge bg-danger">Habis</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ $product->id }}">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </button>
-                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-
-                                <!-- Modal Edit -->
-                                <div class="modal fade" id="editModal{{ $product->id }}" tabindex="-1">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data" class="edit-form" data-id="{{ $product->id }}">
+                            <?php if (isset($products) && count($products) > 0): ?>
+                                <?php foreach ($products as$product): ?>
+                                    <tr>
+                                        <td class="ps-3">
+                                            <img src="<?php echo $product->image; ?>" alt="<?php echo $product->name; ?>" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark"><?php echo $product->name; ?></div>
+                                            <small class="text-muted"><?php echo $product->description; ?></small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary"><?php echo isset($product->category) ?$product->category->name : 'Uncategorized'; ?></span>
+                                        </td>
+                                        <td class="fw-bold text-primary">Rp <?php echo number_format($product->price, 0, ',', '.'); ?></td>
+                                        <td>
+                                            <?php if (!empty($product->additional_options) && is_array($product->additional_options) && count($product->additional_options) > 0): ?>
+                                                <span class="badge bg-info text-dark"><i class="bi bi-check-circle me-1"></i><?php echo count($product->additional_options); ?> Grup Opsi</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-light text-muted border">Tanpa Opsi</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($product->is_available): ?>
+                                                <span class="badge bg-success">Tersedia</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-danger">Habis</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $product->id; ?>">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </button>
+                                            <form action="<?php echo route('admin.products.destroy', $product->id); ?>" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
                                                 @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="options_json" id="options_json_edit_{{ $product->id }}">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title fw-bold">Edit Menu: {{ $product->name }}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">Nama Menu</label>
-                                                            <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">Kategori</label>
-                                                            <select name="category_id" class="form-select">
-                                                                <option value="">-- Pilih Kategori --</option>
-                                                                @foreach ($categories as$cat)
-                                                                    <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">Harga (Rp)</label>
-                                                            <input type="number" name="price" class="form-control" value="{{ $product->price }}" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">Ganti Foto (Opsional)</label>
-                                                            <input type="file" name="image" class="form-control" accept="image/*">
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <label class="form-label small fw-bold">Deskripsi</label>
-                                                            <textarea name="description" class="form-control" rows="2">{{ $product->description }}</textarea>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox" name="is_available" value="1" {{ $product->is_available ? 'checked' : '' }}>
-                                                                <label class="form-check-label fw-bold small">Status Tersedia</label>
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Modal Edit -->
+                                    <div class="modal fade" id="editModal<?php echo $product->id; ?>" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <form action="<?php echo route('admin.products.update', $product->id); ?>" method="POST" enctype="multipart/form-data" class="edit-form" data-id="<?php echo $product->id; ?>">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="options_json" id="options_json_edit_<?php echo $product->id; ?>">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold">Edit Menu: <?php echo $product->name; ?></h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-bold">Nama Menu</label>
+                                                                <input type="text" name="name" class="form-control" value="<?php echo $product->name; ?>" required>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-bold">Kategori</label>
+                                                                <select name="category_id" class="form-select">
+                                                                    <option value="">-- Pilih Kategori --</option>
+                                                                    <?php if (isset($categories)): ?>
+                                                                        <?php foreach ($categories as$cat): ?>
+                                                                            <option value="<?php echo $cat->id; ?>" <?php echo $product->category_id ==$cat->id ? 'selected' : ''; ?>><?php echo $cat->name; ?></option>
+                                                                        <?php endforeach; ?>
+                                                                    <?php endif; ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-bold">Harga (Rp)</label>
+                                                                <input type="number" name="price" class="form-control" value="<?php echo $product->price; ?>" required>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-bold">Ganti Foto (Opsional)</label>
+                                                                <input type="file" name="image" class="form-control" accept="image/*">
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label class="form-label small fw-bold">Deskripsi</label>
+                                                                <textarea name="description" class="form-control" rows="2"><?php echo $product->description; ?></textarea>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="is_available" value="1" <?php echo $product->is_available ? 'checked' : ''; ?>>
+                                                                    <label class="form-check-label fw-bold small">Status Tersedia</label>
+                                                                </div>
                                                             </div>
                                                         </div>
+
+                                                        <hr class="my-4">
+
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <label class="form-label fw-bold m-0 text-dark"><i class="bi bi-sliders me-1"></i> Kustomisasi Opsi Additional</label>
+                                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addGroup('edit', <?php echo $product->id; ?>)">
+                                                                <i class="bi bi-plus-circle me-1"></i> Tambah Grup Opsi
+                                                            </button>
+                                                        </div>
+                                                        <p class="text-muted small mb-3">Kosongkan jika menu ini tidak memiliki pilihan topping / kustomisasi tambahan.</p>
+
+                                                        <div id="groups_container_edit_<?php echo $product->id; ?>"></div>
                                                     </div>
-
-                                                    <hr class="my-4">
-
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <label class="form-label fw-bold m-0 text-dark"><i class="bi bi-sliders me-1"></i> Kustomisasi Opsi Additional</label>
-                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addGroup('edit', {{ $product->id }})">
-                                                            <i class="bi bi-plus-circle me-1"></i> Tambah Grup Opsi
-                                                        </button>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
                                                     </div>
-                                                    <p class="text-muted small mb-3">Kosongkan jika menu ini tidak memiliki pilihan topping / kustomisasi tambahan.</p>
-
-                                                    <div id="groups_container_edit_{{ $product->id }}"></div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
-                                                </div>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @empty
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
                                     <td colspan="7" class="text-center py-4 text-muted">Belum ada produk. Silakan tambahkan produk baru.</td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -175,7 +179,7 @@
     <div class="modal fade" id="createModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" id="createProductForm">
+                <form action="<?php echo route('admin.products.store'); ?>" method="POST" enctype="multipart/form-data" id="createProductForm">
                     @csrf
                     <input type="hidden" name="options_json" id="options_json_create_">
                     <div class="modal-header">
@@ -192,9 +196,11 @@
                                 <label class="form-label small fw-bold">Kategori</label>
                                 <select name="category_id" class="form-select">
                                     <option value="">-- Pilih Kategori --</option>
-                                    @foreach ($categories as$cat)
-                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                    @endforeach
+                                    <?php if (isset($categories)): ?>
+                                        <?php foreach ($categories as$cat): ?>
+                                            <option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -240,7 +246,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const existingProductsData = @json($products ?? []);
+        const existingProductsData = <?php echo json_encode($products ?? []); ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
             const createForm = document.getElementById('createProductForm');
@@ -257,13 +263,18 @@
                 });
             });
 
-            // Populate existing option groups and option items into Modal Edit
             existingProductsData.forEach(product => {
                 const container = document.getElementById(`groups_container_edit_${product.id}`);
-                if (container && product.additional_options && Array.isArray(product.additional_options)) {
-                    product.additional_options.forEach(group => {
-                        addGroup('edit', product.id, group);
-                    });
+                if (container && product.additional_options) {
+                    let optionsData = product.additional_options;
+                    if (typeof optionsData === 'string') {
+                        try { optionsData = JSON.parse(optionsData); } catch(e) {}
+                    }
+                    if (Array.isArray(optionsData)) {
+                        optionsData.forEach(group => {
+                            addGroup('edit', product.id, group);
+                        });
+                    }
                 }
             });
         });
@@ -276,8 +287,8 @@
             const groupDiv = document.createElement('div');
             groupDiv.className = 'option-group-box group-item';
 
-            const gName = existingGroupData ? existingGroupData.groupName : '';
-            const gType = existingGroupData ? existingGroupData.type : 'checkbox';
+            const gName = existingGroupData ? (existingGroupData.groupName || existingGroupData.name || '') : '';
+            const gType = existingGroupData ? (existingGroupData.type || 'checkbox') : 'checkbox';
 
             groupDiv.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -308,9 +319,11 @@
 
             container.appendChild(groupDiv);
 
-            if (existingGroupData && Array.isArray(existingGroupData.options) && existingGroupData.options.length > 0) {
-                existingGroupData.options.forEach(opt => {
-                    addOptionItem(groupDiv.querySelector('button'), opt.name, opt.price);
+            // Perbaikan utama: Cek array items/options dengan fleksibel
+            const itemsList = existingGroupData ? (existingGroupData.options || existingGroupData.items || []) : [];
+            if (Array.isArray(itemsList) && itemsList.length > 0) {
+                itemsList.forEach(opt => {
+                    addOptionItem(groupDiv.querySelector('button'), opt.name || opt.option_name || '', opt.price || 0);
                 });
             } else {
                 addOptionItem(groupDiv.querySelector('button'));
