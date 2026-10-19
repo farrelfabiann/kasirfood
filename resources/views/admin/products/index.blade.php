@@ -270,6 +270,7 @@
             existingProductsData.forEach(product => {
                 const container = document.getElementById(`groups_container_edit_${product.id}`);
                 if (container) {
+                    container.innerHTML = '';
                     let groups = product.additional_options;
                     if (typeof groups === 'string') {
                         try { groups = JSON.parse(groups); } catch(e) { groups = []; }
@@ -286,7 +287,7 @@
         function addGroup(mode, id, existingGroupData = null) {
             const container = document.getElementById(`groups_container_${mode}_${id}`);
             if (!container) return;
-            const gIdx = container.children.length;
+            const gIdx = container.querySelectorAll('.group-item').length;
 
             const groupDiv = document.createElement('div');
             groupDiv.className = 'option-group-box group-item';
@@ -294,7 +295,6 @@
             const gName = existingGroupData ? (existingGroupData.groupName || '') : '';
             const gType = existingGroupData ? (existingGroupData.type || 'radio') : 'radio';
 
-            // URUTAN YANG BENAR: Header -> Judul Grup & Tipe -> Container Items -> Tombol Tambah
             groupDiv.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold small text-primary"><i class="bi bi-folder2-open me-1"></i> Grup Opsi #${gIdx + 1}</span>
@@ -302,8 +302,7 @@
                         <i class="bi bi-trash me-1"></i> Hapus Grup
                     </button>
                 </div>
-                
-                <!-- 1. JUDUL GRUP & TIPE (HARUS PALING ATAS) -->
+                <!-- 1. JUDUL GRUP & TIPE (BAGIAN ATAS) -->
                 <div class="row g-2 mb-2">
                     <div class="col-md-7">
                         <label class="form-label small text-muted mb-1">Nama Grup Opsi</label>
@@ -317,36 +316,38 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- 2. CONTAINER OPSI ITEM (DI BAWAH JUDUL GRUP) -->
+                <!-- 2. DAFTAR PILIHAN ITEM (BAGIAN BAWAH) -->
                 <div class="ps-2 border-start border-3 border-primary ms-1 my-2">
                     <label class="form-label small fw-semibold text-muted mb-1">Daftar Pilihan / Items:</label>
                     <div class="options-item-container"></div>
-                    
-                    <!-- 3. TOMBOL TAMBAH ITEM (PALING BAWAH) -->
+                    <!-- 3. TOMBOL TAMBAH ITEM -->
                     <button type="button" class="btn btn-light btn-sm text-primary fw-semibold mt-1 py-0 px-2" style="font-size: 0.8rem;" onclick="addOptionItem(this)">
                         <i class="bi bi-plus me-1"></i> Tambah Item Pilihan
                     </button>
                 </div>
             `;
 
-            // PERBAIKAN PENTING: Wajib appendChild DULUAN ke DOM sebelum memanggil addOptionItem()
+            // Append elemen grup ke DOM terlebih dahulu
             container.appendChild(groupDiv);
 
-            const addBtn = groupDiv.querySelector('.ps-2 button');
+            const itemsContainer = groupDiv.querySelector('.options-item-container');
             if (existingGroupData && Array.isArray(existingGroupData.options) && existingGroupData.options.length > 0) {
                 existingGroupData.options.forEach(opt => {
-                    addOptionItem(addBtn, opt.name, opt.price);
+                    appendItemRow(itemsContainer, opt.name, opt.price);
                 });
             } else {
-                addOptionItem(addBtn);
+                appendItemRow(itemsContainer);
             }
         }
 
-        function addOptionItem(btn, name = '', price = 0) {
-            const container = btn.previousElementSibling;
-            if (!container) return;
+        function addOptionItem(btn) {
+            const itemsContainer = btn.previousElementSibling;
+            if (itemsContainer) {
+                appendItemRow(itemsContainer);
+            }
+        }
 
+        function appendItemRow(container, name = '', price = 0) {
             const itemRow = document.createElement('div');
             itemRow.className = 'row g-2 mb-1 align-items-center option-row';
             itemRow.innerHTML = `
