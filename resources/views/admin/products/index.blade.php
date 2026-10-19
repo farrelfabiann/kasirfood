@@ -294,7 +294,7 @@
             const gName = existingGroupData ? (existingGroupData.groupName || '') : '';
             const gType = existingGroupData ? (existingGroupData.type || 'radio') : 'radio';
 
-            // PERBAIKAN MASALAH 1: Struktur Judul & Tipe ditaruh di ATAS sebelum daftar item pilihan
+            // URUTAN YANG BENAR: Header -> Judul Grup & Tipe -> Container Items -> Tombol Tambah
             groupDiv.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold small text-primary"><i class="bi bi-folder2-open me-1"></i> Grup Opsi #${gIdx + 1}</span>
@@ -302,7 +302,8 @@
                         <i class="bi bi-trash me-1"></i> Hapus Grup
                     </button>
                 </div>
-                <!-- 1. JUDUL GRUP & TIPE DI ATAS -->
+                
+                <!-- 1. JUDUL GRUP & TIPE (HARUS PALING ATAS) -->
                 <div class="row g-2 mb-2">
                     <div class="col-md-7">
                         <label class="form-label small text-muted mb-1">Nama Grup Opsi</label>
@@ -316,18 +317,20 @@
                         </select>
                     </div>
                 </div>
-                <!-- 2. DAFTAR PILIHAN ITEM DI BAWAH JUDUL GRUP -->
+
+                <!-- 2. CONTAINER OPSI ITEM (DI BAWAH JUDUL GRUP) -->
                 <div class="ps-2 border-start border-3 border-primary ms-1 my-2">
                     <label class="form-label small fw-semibold text-muted mb-1">Daftar Pilihan / Items:</label>
                     <div class="options-item-container"></div>
-                    <!-- 3. TOMBOL TAMBAH ITEM PADA BAGIAN BAWAH -->
+                    
+                    <!-- 3. TOMBOL TAMBAH ITEM (PALING BAWAH) -->
                     <button type="button" class="btn btn-light btn-sm text-primary fw-semibold mt-1 py-0 px-2" style="font-size: 0.8rem;" onclick="addOptionItem(this)">
                         <i class="bi bi-plus me-1"></i> Tambah Item Pilihan
                     </button>
                 </div>
             `;
 
-            // PERBAIKAN MASALAH 2: Masukkan elemen groupDiv ke DOM DULUAN baru panggil addOptionItem()
+            // PERBAIKAN PENTING: Wajib appendChild DULUAN ke DOM sebelum memanggil addOptionItem()
             container.appendChild(groupDiv);
 
             const addBtn = groupDiv.querySelector('.ps-2 button');
