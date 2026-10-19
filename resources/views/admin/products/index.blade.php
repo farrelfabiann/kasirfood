@@ -68,8 +68,11 @@
                                         </td>
                                         <td class="fw-bold text-primary">Rp <?php echo number_format($product->price, 0, ',', '.'); ?></td>
                                         <td>
-                                            <?php if (!empty($product->additional_options) && is_array($product->additional_options) && count($product->additional_options) > 0): ?>
-                                                <span class="badge bg-info text-dark"><i class="bi bi-check-circle me-1"></i><?php echo count($product->additional_options); ?> Grup Opsi</span>
+                                            <?php 
+                                                $opts = is_string($product->additional_options) ? json_decode($product->additional_options, true) :$product->additional_options;
+                                            ?>
+                                            <?php if (!empty($opts) && is_array($opts) && count($opts) > 0): ?>
+                                                <span class="badge bg-info text-dark"><i class="bi bi-check-circle me-1"></i><?php echo count($opts); ?> Grup Opsi</span>
                                             <?php else: ?>
                                                 <span class="badge bg-light text-muted border">Tanpa Opsi</span>
                                             <?php endif; ?>
@@ -263,12 +266,19 @@
                 });
             });
 
+            // Populate data opsi saat modal edit dimuat
             existingProductsData.forEach(product => {
                 const container = document.getElementById(`groups_container_edit_${product.id}`);
-                if (container && product.additional_options && Array.isArray(product.additional_options)) {
-                    product.additional_options.forEach(group => {
-                        addGroup('edit', product.id, group);
-                    });
+                if (container) {
+                    let groups = product.additional_options;
+                    if (typeof groups === 'string') {
+                        try { groups = JSON.parse(groups); } catch(e) { groups = []; }
+                    }
+                    if (Array.isArray(groups)) {
+                        groups.forEach(group => {
+                            addGroup('edit', product.id, group);
+                        });
+                    }
                 }
             });
         });
@@ -281,9 +291,10 @@
             const groupDiv = document.createElement('div');
             groupDiv.className = 'option-group-box group-item';
 
-            const gName = existingGroupData ? existingGroupData.groupName : '';
-            const gType = existingGroupData ? existingGroupData.type : 'checkbox';
+            const gName = existingGroupData ? (existingGroupData.groupName || '') : '';
+            const gType = existingGroupData ? (existingGroupData.type || 'radio') : 'radio';
 
+            // PERBAIKAN MASALAH 1: Struktur Judul & Tipe ditaruh di ATAS sebelum daftar item pilihan
             groupDiv.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold small text-primary"><i class="bi bi-folder2-open me-1"></i> Grup Opsi #${gIdx + 1}</span>
@@ -291,39 +302,48 @@
                         <i class="bi bi-trash me-1"></i> Hapus Grup
                     </button>
                 </div>
+                <!-- 1. JUDUL GRUP & TIPE DI ATAS -->
                 <div class="row g-2 mb-2">
                     <div class="col-md-7">
-                        <input type="text" class="form-control form-control-sm group-name-input" placeholder="Nama Grup (misal: Level Pedas / Topping)" value="${gName}" required>
+                        <label class="form-label small text-muted mb-1">Nama Grup Opsi</label>
+                        <input type="text" class="form-control form-control-sm group-name-input" placeholder="Nama Grup (misal: Ice / Topping)" value="${gName}" required>
                     </div>
                     <div class="col-md-5">
+                        <label class="form-label small text-muted mb-1">Tipe Pilihan</label>
                         <select class="form-select form-select-sm group-type-input">
-                            <option value="checkbox" ${gType === 'checkbox' ? 'selected' : ''}>Centang Banyak (Checkbox)</option>
                             <option value="radio" ${gType === 'radio' ? 'selected' : ''}>Pilihan Tunggal (Radio)</option>
+                            <option value="checkbox" ${gType === 'checkbox' ? 'selected' : ''}>Centang Banyak (Checkbox)</option>
                         </select>
                     </div>
                 </div>
+                <!-- 2. DAFTAR PILIHAN ITEM DI BAWAH JUDUL GRUP -->
                 <div class="ps-2 border-start border-3 border-primary ms-1 my-2">
                     <label class="form-label small fw-semibold text-muted mb-1">Daftar Pilihan / Items:</label>
                     <div class="options-item-container"></div>
+                    <!-- 3. TOMBOL TAMBAH ITEM PADA BAGIAN BAWAH -->
                     <button type="button" class="btn btn-light btn-sm text-primary fw-semibold mt-1 py-0 px-2" style="font-size: 0.8rem;" onclick="addOptionItem(this)">
                         <i class="bi bi-plus me-1"></i> Tambah Item Pilihan
                     </button>
                 </div>
             `;
 
+            // PERBAIKAN MASALAH 2: Masukkan elemen groupDiv ke DOM DULUAN baru panggil addOptionItem()
             container.appendChild(groupDiv);
 
-            if (existingGroupData && Array.isArray(existingGroupData.options)) {
+            const addBtn = groupDiv.querySelector('.ps-2 button');
+            if (existingGroupData && Array.isArray(existingGroupData.options) && existingGroupData.options.length > 0) {
                 existingGroupData.options.forEach(opt => {
-                    addOptionItem(groupDiv.querySelector('button'), opt.name, opt.price);
+                    addOptionItem(addBtn, opt.name, opt.price);
                 });
             } else {
-                addOptionItem(groupDiv.querySelector('button'));
+                addOptionItem(addBtn);
             }
         }
 
         function addOptionItem(btn, name = '', price = 0) {
             const container = btn.previousElementSibling;
+            if (!container) return;
+
             const itemRow = document.createElement('div');
             itemRow.className = 'row g-2 mb-1 align-items-center option-row';
             itemRow.innerHTML = `
