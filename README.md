@@ -1,4 +1,4 @@
-# Kasir Food — Self Order Kiosk
+# KlikKluk — Self Order Kiosk
 
 Aplikasi POS restoran berbasis Laravel: pelanggan memesan sendiri lewat kiosk publik, sedangkan admin mengelola menu dan memantau pesanan dari panel admin. Pembayaran mendukung **QRIS lewat DOKU Checkout**, **kartu debit/kredit lewat EDC kiosk**, dan **tunai di kasir**.
 
