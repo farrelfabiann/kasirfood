@@ -100,7 +100,6 @@ C:.
 |   |       
 |   \---seeders
 |           DatabaseSeeder.php
-|           FoodSeeder.php
 |           
 |   |   .package-lock.json
 |   |   

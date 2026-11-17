@@ -11,22 +11,31 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seed akun admin default dan akun kasir contoh.
+     * Data menu sepenuhnya diisi melalui dashboard admin.
      */
     public function run(): void
     {
-        // Pakai firstOrCreate agar tidak crash jika user test@example.com sudah ada
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@kasirfood.test'],
             [
-                'name' => 'Test User',
+                'name' => 'Admin Kasir',
                 'password' => bcrypt('password'),
             ]
         );
 
-        // Panggil seeder produk makanan
-        $this->call([
-            FoodSeeder::class,
-        ]);
+        if ($admin->role !== 'admin') {
+            $admin->update(['role' => 'admin']);
+        }
+
+        // Akun kasir contoh tetap dipertahankan untuk pengujian role.
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Kasir Contoh',
+                'role' => 'kasir',
+                'password' => bcrypt('password'),
+            ]
+        );
     }
 }

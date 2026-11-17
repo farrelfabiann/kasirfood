@@ -35,10 +35,23 @@ return [
         ],
     ],
 
-    'midtrans' => [
-        'server_key' => env('MIDTRANS_SERVER_KEY'),
-        'client_key' => env('MIDTRANS_CLIENT_KEY'),
-        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+    /*
+    | DOKU Checkout (JOKUL) non-SNAP.
+    | client_id = API Key, secret_key = Active Secret Key dari dashboard DOKU.
+    | Public Key DOKU tidak dipakai untuk alur Checkout ini.
+    */
+    'doku' => [
+        'client_id' => env('DOKU_CLIENT_ID'),
+        'secret_key' => env('DOKU_SECRET_KEY'),
+        'is_production' => env('DOKU_IS_PRODUCTION', true),
+        'checkout_url' => env('DOKU_IS_PRODUCTION', true)
+            ? 'https://api.doku.com'
+            : 'https://api-sandbox.doku.com',
+        'payment_due_date' => (int) env('DOKU_PAYMENT_DUE_DATE', 15),
+        'payment_methods' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('DOKU_PAYMENT_METHODS', 'QRIS'))
+        ))),
     ],
 
 ];

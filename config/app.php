@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend Brand Name
+    |--------------------------------------------------------------------------
+    |
+    | Nama brand yang tampil di halaman pelanggan (kiosk, status pesanan, dan
+    | pembayaran). Panel admin tetap memakai "name" di atas.
+    |
+    */
+
+    'frontend_name' => env('APP_FRONTEND_NAME', 'KlikKluk'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
@@ -65,7 +77,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
 
     /*
     |--------------------------------------------------------------------------

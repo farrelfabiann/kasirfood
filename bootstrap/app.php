@@ -11,9 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Pengecualian CSRF Protection untuk Webhook Midtrans
+        // Pengecualian CSRF Protection untuk Webhook DOKU
         $middleware->validateCsrfTokens(except: [
-            '/midtrans/notification',
+            '/doku/notification',
         ]);
 
         // Alias Middleware Role
