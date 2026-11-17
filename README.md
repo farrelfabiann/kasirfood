@@ -91,11 +91,67 @@ DOKU_PAYMENT_METHODS=
 
 ## Deployment (Railway)
 
-1. Tambahkan environment variable: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, kredensial database, dan kredensial DOKU (`DOKU_CLIENT_ID`, `DOKU_SECRET_KEY`, `DOKU_IS_PRODUCTION=true`).
-2. Build command: `composer install --no-dev --optimize-autoloader && npm ci && npm run build`
-3. Release/start command: `php artisan migrate --force && php artisan storage:link`
-4. Pastikan `APP_TIMEZONE=Asia/Jakarta` agar format nomor antrean dan laporan harian sesuai.
-5. Upload foto menu disimpan di `storage/app/public`. Pada Railway, pasang **Volume** yang di-mount ke `/app/storage/app/public` agar foto tidak hilang setiap deploy.
+### Prasyarat
+- Repo GitHub sudah dipush (selesai di commit terakhir).
+- Railway CLI terinstall dan login: `railway login`.
+- Proyek Railway sudah dibuat (atau mau dibuat baru).
+
+### Langkah deploy
+
+1. **Provision MySQL** di proyek Railway:
+   - Dashboard → project → New Service → plugin `MySQL`.
+   - Railway otomatis mengisi `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+   - Di tab "Variables" proyek, tambahkan `DB_CONNECTION=mysql` dan `DB_URL` (kosongkan, pakai variabel terpisah).
+
+2. **Pasang Volume** untuk storage persisten:
+   - Proyek → New Volume → nama `storage` → mount ke `/app/storage/app/public`.
+   - Ini membuat foto menu dan ikon kategori tetap ada antar deploy.
+
+3. **Set environment variables** di proyek:
+   ```env
+   APP_NAME="Kasir Food"
+   APP_FRONTEND_NAME=KlikKluk
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://<domain-railway>.up.railway.app   # set setelah deploy pertama
+   APP_KEY=<generate>                                  # jalankan `php artisan key:generate`
+   APP_TIMEZONE=Asia/Jakarta
+   DB_CONNECTION=mysql
+   DOKU_CLIENT_ID=BRN-xxxx
+   DOKU_SECRET_KEY=SK-xxxx
+   DOKU_IS_PRODUCTION=true
+   DOKU_PAYMENT_METHODS=QRIS
+   DOKU_PAYMENT_DUE_DATE=15
+   ```
+
+4. **Deploy** (salah satu cara):
+   - Via CLI: `railway deploy --remote`
+   - Via dashboard: sambungkan repo GitHub, Railway otomatis build.
+
+5. **Build command** (di dashboard Railway → Settings → Build):
+   ```bash
+   composer install --no-dev --optimize-autoloader && npm ci && npm run build
+   ```
+
+6. **Start command** (di dashboard Railway → Settings → Deploy):
+   ```bash
+   php artisan config:clear && php artisan migrate --force && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=$PORT
+   ```
+
+7. **Set `APP_URL`** setelah deploy pertama berhasil:
+   - Di dashboard, salin domain publik (`https://xxx.up.railway.app`).
+   - Update `APP_URL` di variables, lalu redeploy.
+   - Ini penting untuk URL ikon kategori dan callback DOKU.
+
+8. **Daftarkan URL DOKU** di dashboard DOKU:
+   - Notification URL: `https://<domain-railway>/doku/notification`
+   - Callback/return URL: `https://<domain-railway>/order/{order_number}`
+
+### Catatan penting
+- `APP_KEY` wajib ada. Kalau belum di-generate di `.env`, Railway akan gagal boot.
+- Volume wajib mount ke `/app/storage/app/public` atau foto/ikon hilang setiap redeploy.
+- `php artisan serve` bukan server production-grade. Untuk production serius, ganti ke `php artisan serve` dengan `octane` atau `php-fpm` + `nginx`. Untuk demo/landing awal, `serve` sudah cukup.
+- Pastikan `APP_TIMEZONE=Asia/Jakarta` agar nomor antrean dan laporan harian sesuai.
 
 ## Perintah berguna
 
