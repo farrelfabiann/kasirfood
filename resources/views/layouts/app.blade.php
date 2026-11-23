@@ -7,6 +7,7 @@
         <meta name="theme-color" content="#d92d0b">
 
         <title>{{ config('app.frontend_name', 'KlikKluk') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/klikkluk_logo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
