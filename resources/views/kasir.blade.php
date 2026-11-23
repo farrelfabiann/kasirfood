@@ -34,9 +34,9 @@
         </div>
 
         <div class="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-5 py-10 sm:px-8">
-            <div class="flex items-center gap-3 text-white">
-                <x-application-logo class="h-14 w-14 text-white/15 ring-1 ring-white/30" />
-                <div>
+            <div class="flex flex-col items-center gap-3 text-white">
+                <img src="{{ $kiosk['app']['logo_url'] ?? asset('images/klikkluk_logo.png') }}" alt="Logo" class="h-12 w-auto object-contain" />
+                <div class="text-center">
                     <p class="font-display text-lg font-extrabold tracking-tight">{{ $kiosk['app']['name'] }}</p>
                     <p class="text-xs font-medium uppercase tracking-[0.2em] text-white/60">Self Order Kiosk</p>
                 </div>
@@ -102,8 +102,8 @@
     <div x-show="started" x-cloak class="flex h-[100dvh] overflow-hidden">
         {{-- Sidebar kategori: selalu vertikal di sisi kiri, portrait maupun landscape --}}
         <aside class="flex w-20 shrink-0 flex-col border-r border-stone-200/80 bg-white sm:w-24 md:w-28 lg:w-32">
-            <div class="flex h-16 shrink-0 items-center justify-center border-b border-stone-100 md:h-[4.5rem]">
-                <x-application-logo class="h-9 w-9 text-brand-600 md:h-10 md:w-10" />
+            <div class="flex h-12 shrink-0 items-center justify-center border-b border-stone-100 md:h-[4.5rem]">
+                <img src="{{ $kiosk['app']['logo_url'] ?? asset('images/klikkluk_logo.png') }}" alt="Logo" class="h-7 w-auto object-contain" />
             </div>
 
             <div class="no-scrollbar flex-1 space-y-1.5 overflow-y-auto p-1.5 md:space-y-2 md:p-2">
